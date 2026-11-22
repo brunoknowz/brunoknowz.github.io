@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#c2662d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Morning 10">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Morning 10 — 7-Day Movement Plan</title>
+<style>
+:root{
+  --bg:#f5f0e6; --card:#fffdf8; --ink:#2b2a26; --muted:#6d675c; --line:#e4dccb;
+  --accent:#c2662d; --accent-soft:#f6e2d3; --green:#3f7a5a; --green-soft:#dcebe1;
+  --mat:#ddd0b6; --far:.38;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#1c1b19; --card:#262522; --ink:#ece6da; --muted:#a39d91; --line:#3a3833;
+    --accent:#e08a4f; --accent-soft:#3d2a1d; --green:#6fb08b; --green-soft:#1f3328; --mat:#4a4438; }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 Inter,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:720px;margin:0 auto;padding:20px 16px 60px}
+h1,h2,h3{font-family:Fraunces,Georgia,serif;margin:0;letter-spacing:-.01em}
+h1{font-size:30px;line-height:1.1}
+.sub{color:var(--muted);margin:6px 0 18px}
+details.note{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px}
+details.note summary{cursor:pointer;font-weight:600;list-style:none;display:flex;justify-content:space-between;align-items:center}
+details.note summary::after{content:"+";color:var(--muted);font-size:18px}
+details.note[open] summary::after{content:"–"}
+details.note p{margin:8px 0 2px;color:var(--ink)}
+details.note ul{margin:8px 0 2px;padding-left:18px}
+details.note li{margin:3px 0}
+.tabs{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin:20px 0 14px;position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:5}
+.tab{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:8px 0 6px;font:600 13px Inter,sans-serif;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px}
+.tab .dot{width:7px;height:7px;border-radius:50%}
+.tab.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.dayhead{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:6px}
+.dayhead h2{font-size:24px;line-height:1.15}
+.pill{display:inline-block;font:600 12px Inter,sans-serif;padding:3px 9px;border-radius:99px;margin-top:6px}
+.pill.sh{background:var(--accent-soft);color:var(--accent)}
+.pill.rest{background:var(--green-soft);color:var(--green)}
+.start{flex:none;border:0;background:var(--accent);color:#fff;font:600 15px Inter,sans-serif;padding:11px 16px;border-radius:12px;cursor:pointer}
+.why{color:var(--muted);margin:8px 0 4px}
+.sec{margin-top:18px}
+.sechead{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:8px}
+.sechead h3{font-size:17px}
+.sechead span{color:var(--muted);font-size:13px}
+.ex{display:grid;grid-template-columns:118px 1fr;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 12px 8px 6px;margin-bottom:8px}
+.ex svg{width:118px;height:auto;display:block}
+.ex .nm{font-weight:600;display:flex;justify-content:space-between;gap:8px}
+.ex .nm small{color:var(--muted);font-weight:500;white-space:nowrap}
+.ex .cue{color:var(--muted);font-size:13.5px;margin-top:2px}
+svg .b{fill:none;stroke:var(--ink);stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+svg .far{opacity:var(--far)}
+svg .ghost{opacity:.22;stroke-dasharray:3 3}
+svg .hd{fill:var(--card);stroke:var(--ink);stroke-width:2.6}
+svg .hd.ghost{fill:none}
+svg .mat{fill:var(--mat)}
+svg .gr{stroke:var(--mat);stroke-width:2.5;stroke-linecap:round}
+svg .kb{fill:var(--accent)}
+svg .kbh{fill:none;stroke:var(--accent);stroke-width:2}
+svg .trx{stroke:var(--green);stroke-width:1.8;stroke-dasharray:4 2.5;fill:none}
+svg .anc{fill:var(--green)}
+svg .arrow{fill:none;stroke:var(--accent);stroke-width:1.5;stroke-dasharray:2.5 2.5}
+svg .topmat{fill:var(--mat);opacity:.6}
+.foot{color:var(--muted);font-size:12.5px;margin-top:26px}
+.adj{display:flex;align-items:center;gap:6px;margin-top:7px}
+.adj .sp{flex:1}
+.adj button{border:1px solid var(--line);background:transparent;color:var(--muted);font:500 12px Inter,sans-serif;padding:4px 8px;border-radius:8px;cursor:pointer}
+.dots{display:inline-flex;gap:3px}.dots i{width:8px;height:8px;border-radius:50%;background:var(--line)}.dots i.on{background:var(--accent)}
+.lnk{border:0;background:none;color:var(--accent);font:inherit;padding:0;cursor:pointer;text-decoration:underline}
+#tm .rate{margin-top:10px;width:100%;max-width:420px}
+.rq{font-size:13px;color:var(--muted);margin-bottom:6px}
+.rb{display:flex;gap:6px}
+.rb button{flex:1;border:1px solid var(--line);background:var(--card);color:var(--ink);font:600 13px Inter,sans-serif;padding:9px 4px;border-radius:10px;cursor:pointer}
+.rb button.sel{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+#tm .end{display:none;overflow:auto;flex:1;max-width:560px;width:100%;margin:0 auto;padding-top:6px}
+#tm .end h2{font-size:24px;margin-bottom:4px}
+#tm .end .cue{margin:0 0 12px}
+.er{display:grid;grid-template-columns:84px 1fr;gap:10px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 10px 10px 4px;margin-bottom:8px}
+.er svg{width:84px;height:auto}.er .rb{margin-top:6px}
+.mut{color:var(--muted);font-size:13px}
+.chg{padding-left:18px;margin:0 0 16px}.chg li{margin:5px 0}
+.start.wide{width:100%;margin-top:8px;padding:14px}
+/* timer */
+#tm{position:fixed;inset:0;background:var(--bg);z-index:50;display:none;flex-direction:column;padding:18px 18px 24px}
+#tm.on{display:flex}
+#tm .top{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:13px}
+#tm .x{border:0;background:none;color:var(--ink);font-size:26px;cursor:pointer;line-height:1}
+#tm .bar{height:5px;background:var(--line);border-radius:9px;margin:10px 0 6px;overflow:hidden}
+#tm .bar i{display:block;height:100%;background:var(--accent);width:0}
+#tm .main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:6px}
+#tm .main svg{width:min(78vw,340px);height:auto}
+#tm .lbl{font:600 12px Inter,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+#tm .lbl.r{color:var(--green)}
+#tm h2{font-size:26px}
+#tm .cue{color:var(--muted);max-width:420px;font-size:14.5px}
+#tm .cnt{font:700 72px/1 Fraunces,Georgia,serif;margin:6px 0}
+#tm .nxt{color:var(--muted);font-size:13.5px}
+#tm .ctl{display:flex;gap:10px;justify-content:center}
+#tm .ctl button{border:1px solid var(--line);background:var(--card);color:var(--ink);font:600 15px Inter,sans-serif;padding:12px 20px;border-radius:12px;cursor:pointer;min-width:110px}
+#tm .ctl button.p{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Morning 10</h1>
+  <p class="sub">Seven 10-minute routines for before a physical day. Kit: TRX, mat, small kettlebell. <b>Rate each strength move after a session</b> and the plan adjusts it next time: harder, easier or longer.</p>
+
+  <details class="note">
+    <summary>Looking after the shoulders</summary>
+    <ul>
+      <li><b>Pain is the guide, not the crunch.</b> Clicking without pain is usually harmless. Mild discomfort (2–3 out of 10) that settles straight away is fine; sharp or lingering pain means rate it <i>too hard</i> and it'll step down.</li>
+      <li><b>Mon · Wed · Fri</b> strengthen the muscles that steady the shoulder blade. <b>Tue · Thu</b> load the legs and core and give the shoulders a rest.</li>
+      <li>Nothing is loaded overhead. Side-lying rotations want a <i>very</i> light weight (a water bottle, or anything under ~4 kg).</li>
+      <li>See a physio if pain lasts beyond a few weeks, wakes you at night, or you notice weakness.</li>
+    </ul>
+  </details>
+  <details class="note">
+    <summary>How it gets harder</summary>
+    <ul>
+      <li>Each strength move has a ladder of 3–4 versions. You can see where you are on its dots.</li>
+      <li><b>Too easy</b> → next version up. At the top version, work time goes up instead (45 → 50 → 55 s).</li>
+      <li><b>Too hard</b> → less work time first, then down a version.</li>
+      <li>The circuit always runs in 1-minute blocks, so more work time means less rest and the session stays 10 minutes.</li>
+      <li>Rate during the timer, on the summary at the end, or with the ‹ easier / harder › buttons on any card.</li>
+    </ul>
+  </details>
+  <details class="note">
+    <summary>Making flexibility actually improve</summary>
+    <ul>
+      <li>Little and often wins. Give it 6–8 weeks.</li>
+      <li><b>Contract-relax:</b> in a stretch, push gently against it for 5 s, relax, ease a little deeper. Repeat 2–3 times.</li>
+      <li>Saturday is your full flexibility session. Keep doing it even when progress feels slow.</li>
+    </ul>
+  </details>
+
+  <div class="tabs" id="tabs"></div>
+  <div id="day"></div>
+
+  <p class="foot"><span id="saveNote">Progress is saved on this phone. Works offline once installed.</span> <button class="lnk" id="reset">Reset all levels</button><br>General guidance, not medical advice. "Seen from above" figures are drawn top-down; faint dashed lines show the movement.</p>
+</div>
+
+<div id="tm">
+  <div class="top"><span id="tmStep"></span><button class="x" id="tmX" aria-label="Close">×</button></div>
+  <div class="bar"><i id="tmBar"></i></div>
+  <div class="main" id="tmMain">
+    <div class="lbl" id="tmLbl"></div>
+    <div id="tmFig"></div>
+    <h2 id="tmName"></h2>
+    <div class="cue" id="tmCue"></div>
+    <div class="cnt" id="tmCnt"></div>
+    <div class="nxt" id="tmNext"></div>
+    <div class="rate" id="tmRate"></div>
+  </div>
+  <div class="ctl" id="tmCtl"><button id="tmPause" class="p">Pause</button><button id="tmSkip">Skip ›</button></div>
+  <div id="tmEnd" class="end"></div>
+</div>
+
+<script>
+/* ---------- figure poses (viewBox 0 0 120 80) ---------- */
+const FS=[52,23], FS2=[68,23];
+const P={
+ catcow:{mat:1,n:[78,44],p:[44,44],c:[61,32],h:[88,48],a1:[[78,58],[78,72]],a2:[[74,58],[74,72]],l1:[[46,70],[26,72]],l2:[[42,70],[22,72]],g:{c:[61,56],h:[89,37]}},
+ thread:{mat:1,n:[72,56],p:[44,44],c:[58,46],h:[80,63],a1:[[66,67],[48,70]],a2:[[80,62],[80,72]],l1:[[46,70],[26,72]],l2:[[42,70],[22,72]]},
+ wgs:{mat:1,n:[74,32],p:[52,54],h:[81,28],a1:[[73,24],[74,12]],a2:[[74,54],[76,72]],l1:[[76,52],[84,72]],l2:[[36,62],[16,72]]},
+ ninety:{mat:1,flat:1,n:[60,42],p:[60,64],h:[60,35],s1:[52,43],s2:[68,43],a1:[[46,54],[40,66]],a2:[[74,54],[80,66]],l1:[[84,66],[92,58]],l2:[[40,68],[28,72]]},
+ legswing:{n:[60,22],p:[60,44],h:[61,15],a1:[[70,30],[78,26]],a2:[[56,32],[54,43]],l1:[[70,56],[84,62]],l2:[[60,58],[60,72]],trx:[[98,2],[78,26]],g:{l1:[[54,58],[42,68]]}},
+ angels:{top:1,n:[60,24],p:[60,50],h:[60,17],s1:[54,25],s2:[66,25],a1:[[44,22],[42,8]],a2:[[76,22],[78,8]],l1:[[56,62],[55,74]],l2:[[64,62],[65,74]],g:{a1:[[42,36],[38,26]],a2:[[78,36],[82,26]]}},
+ hipcircles:{flat:1,n:[60,22],p:[60,44],h:[60,15],s1:FS,s2:FS2,a1:[[46,33],[55,43]],a2:[[74,33],[65,43]],l1:[[56,58],[54,72]],l2:[[64,58],[66,72]],x:'<ellipse cx="60" cy="45" rx="17" ry="5" class="arrow"/>'},
+ squathold:{n:[60,38],p:[52,62],h:[64,31],a1:[[72,42],[82,38]],a2:[[70,44],[80,40]],l1:[[70,52],[66,72]],l2:[[68,54],[62,72]],trx:[[100,2],[82,38],[80,40]]},
+ scapcircle:{flat:1,n:[60,22],p:[60,44],h:[60,15],s1:FS,s2:FS2,a1:[[51,34],[50,45]],a2:[[69,34],[70,45]],l1:[[56,58],[55,72]],l2:[[64,58],[65,72]],x:'<circle cx="48" cy="21" r="5" class="arrow"/><circle cx="72" cy="21" r="5" class="arrow"/>'},
+ trxrow:{n:[56,32],p:[70,52],h:[51,26],a1:[[52,41],[66,32]],a2:[[54,43],[68,34]],l1:[[78,62],[86,72]],l2:[[76,62],[83,72]],trx:[[100,2],[66,32],[68,34]]},
+ facepull:{n:[56,32],p:[70,52],h:[52,25],a1:[[46,24],[60,19]],a2:[[48,26],[62,21]],l1:[[78,62],[86,72]],l2:[[76,62],[83,72]],trx:[[100,2],[60,19],[62,21]]},
+ extrot:{mat:1,n:[30,62],p:[62,64],h:[22,60],a1:[[44,63],[44,49]],kb:[44,46],a2:[[20,68],[16,62]],l1:[[76,60],[88,68]],l2:[[76,64],[88,71]],g:{a1:[[44,63],[33,69]]}},
+ ytw:{top:1,n:[60,24],p:[60,50],h:[60,17],s1:[54,25],s2:[66,25],a1:[[48,14],[40,4]],a2:[[72,14],[80,4]],l1:[[56,62],[55,74]],l2:[[64,62],[65,74]],g:{a1:[[42,25],[30,25]],a2:[[78,25],[90,25]]}},
+ carry:{n:[60,22],p:[60,44],h:[61,15],a1:[[62,33],[63,45]],kb:[63,51],a2:[[57,32],[55,43]],l1:[[65,58],[69,72]],l2:[[55,58],[51,72]]},
+ rackcarry:{n:[60,22],p:[60,44],h:[61,15],a1:[[62,34],[66,26]],kb:[68,24],a2:[[57,32],[55,43]],l1:[[65,58],[69,72]],l2:[[55,58],[51,72]]},
+ deadlift:{n:[72,32],p:[46,44],h:[79,28],a1:[[71,46],[70,58]],a2:[[69,46],[68,58]],kb:[69,64],l1:[[60,58],[60,72]],l2:[[56,58],[56,72]],g:{n:[52,22],h:[53,15]}},
+ swing:{n:[60,22],p:[58,44],h:[61,15],a1:[[70,27],[80,30]],a2:[[68,28],[78,31]],kb:[82,34],l1:[[60,58],[60,72]],l2:[[57,58],[56,72]],g:{n:[76,32],h:[83,29],a1:[[68,44],[56,54]]}},
+ sldl:{n:[80,36],p:[54,44],h:[87,33],a1:[[80,48],[80,58]],a2:[[78,48],[78,58]],kb:[80,63],l1:[[56,58],[56,72]],l2:[[40,40],[26,36]]},
+ goblet:{n:[58,32],p:[48,56],h:[61,25],a1:[[64,44],[66,36]],a2:[[62,44],[64,37]],kb:[68,39],l1:[[70,56],[64,72]],l2:[[66,58],[60,72]]},
+ lunge:{n:[56,30],p:[54,52],h:[57,23],a1:[[64,38],[74,32]],a2:[[62,40],[72,34]],l1:[[70,56],[68,72]],l2:[[42,70],[26,71]],trx:[[100,2],[74,32],[72,34]]},
+ bulgarian:{n:[56,30],p:[54,52],h:[57,23],a1:[[62,42],[64,36]],a2:[[60,43],[62,37]],kb:[66,38],l1:[[72,56],[70,72]],l2:[[44,68],[28,56]],trx:[[28,2],[28,56]]},
+ deadbug:{mat:1,n:[28,64],p:[56,65],h:[20,62],a1:[[28,52],[28,40]],a2:[[18,60],[8,62]],l1:[[58,48],[72,48]],l2:[[74,62],[92,66]]},
+ hollow:{mat:1,n:[34,60],p:[56,66],h:[27,56],a1:[[24,54],[12,50]],a2:[[25,55],[13,51]],l1:[[74,60],[92,54]],l2:[[74,61],[92,56]]},
+ bridge:{mat:1,n:[28,68],p:[56,54],h:[20,66],a1:[[40,70],[52,71]],a2:[[40,71],[52,72]],l1:[[74,46],[80,70]],l2:[[72,48],[78,71]],g:{p:[56,67]}},
+ birddog:{mat:1,n:[70,46],p:[44,46],h:[80,42],a1:[[82,44],[94,42]],a2:[[70,60],[70,72]],l1:[[30,46],[14,46]],l2:[[44,70],[26,72]]},
+ hamcurl:{mat:1,n:[24,68],p:[48,56],h:[16,66],a1:[[34,70],[44,71]],a2:[[34,71],[44,72]],l1:[[64,44],[80,52]],l2:[[62,46],[78,54]],trx:[[90,2],[80,52],[78,54]]},
+ clam:{mat:1,n:[28,62],p:[58,64],h:[20,58],a1:[[42,58],[56,60]],a2:[[16,66],[18,58]],l1:[[72,50],[62,68]],l2:[[74,68],[60,70]]},
+ legraise:{mat:1,n:[28,62],p:[58,64],h:[20,58],a1:[[42,58],[56,60]],a2:[[16,66],[18,58]],l1:[[76,56],[94,48]],l2:[[78,66],[96,68]]},
+ scappush:{mat:1,n:[72,46],p:[46,56],h:[81,45],a1:[[72,59],[72,72]],a2:[[70,59],[70,72]],l1:[[30,70],[16,64]],l2:[[30,71],[16,66]],g:{n:[72,51],h:[81,50]}},
+ pushup:{n:[66,34],p:[48,54],h:[72,29],a1:[[58,46],[72,40]],a2:[[60,47],[74,42]],l1:[[40,64],[34,72]],l2:[[42,64],[37,72]],trx:[[14,2],[72,40],[74,42]]},
+ childs:{mat:1,n:[70,60],p:[40,56],h:[78,66],a1:[[86,66],[98,70]],a2:[[84,67],[96,71]],l1:[[60,70],[34,72]],l2:[[58,71],[32,72]]},
+ pigeon:{mat:1,n:[58,40],p:[52,62],h:[60,33],a1:[[64,54],[68,70]],a2:[[60,54],[64,70]],l1:[[68,70],[56,72]],l2:[[30,70],[12,72]]},
+ hipflexor:{mat:1,n:[58,34],p:[56,56],h:[59,27],a1:[[66,46],[76,54]],a2:[[64,47],[74,55]],l1:[[78,56],[80,72]],l2:[[44,72],[26,72]]},
+ hamstring:{mat:1,n:[22,66],p:[52,66],h:[14,64],a1:[[40,56],[58,46]],a2:[[40,57],[57,48]],l1:[[60,46],[68,26]],l2:[[72,68],[92,70]]},
+ butterfly:{mat:1,flat:1,n:[60,42],p:[60,66],h:[60,35],s1:[52,43],s2:[68,43],a1:[[48,54],[56,68]],a2:[[72,54],[64,68]],l1:[[38,62],[57,70]],l2:[[82,62],[63,70]]},
+ chest:{n:[68,22],p:[62,44],h:[72,16],a1:[[58,32],[46,36]],a2:[[60,33],[48,38]],l1:[[72,58],[78,72]],l2:[[58,58],[52,72]],trx:[[14,2],[46,36],[48,38]]},
+ crossbody:{flat:1,n:[60,22],p:[60,44],h:[60,15],s1:FS,s2:FS2,a1:[[47,35],[56,29]],a2:[[56,28],[42,27]],l1:[[56,58],[55,72]],l2:[[64,58],[65,72]]},
+ twist:{top:1,n:[60,24],p:[60,48],h:[60,17],s1:[54,25],s2:[66,25],a1:[[44,24],[30,24]],a2:[[76,24],[90,24]],l1:[[76,52],[72,66]],l2:[[78,57],[74,72]]}
+};
+
+const pt=a=>a[0]+','+a[1];
+function limb(o,l,cls){return `<polyline class="b ${cls}" points="${pt(o)} ${pt(l[0])} ${pt(l[1])}"/>`}
+function body(q,cls,only){
+  const has=k=>!only||k in only, flat=q.flat||q.top, farC=flat?cls:(cls+' far');
+  const sh1=q.s1||q.n, sh2=q.s2||q.n; let s='';
+  if(q.a2&&has('a2')) s+=limb(sh2,q.a2,farC);
+  if(q.l2&&has('l2')) s+=limb(q.p,q.l2,farC);
+  if(has('n')||has('p')||has('c')) s+= q.c?`<path class="b ${cls}" d="M${pt(q.n)} Q${pt(q.c)} ${pt(q.p)}"/>`:`<line class="b ${cls}" x1="${q.n[0]}" y1="${q.n[1]}" x2="${q.p[0]}" y2="${q.p[1]}"/>`;
+  if(q.s1&&!only) s+=`<line class="b ${cls}" x1="${q.s1[0]}" y1="${q.s1[1]}" x2="${q.s2[0]}" y2="${q.s2[1]}"/>`;
+  if(q.l1&&has('l1')) s+=limb(q.p,q.l1,cls);
+  if(q.a1&&has('a1')) s+=limb(sh1,q.a1,cls);
+  if(has('h')) s+=`<circle class="hd ${cls}" cx="${q.h[0]}" cy="${q.h[1]}" r="5.5"/>`;
+  return s;
+}
+function fig(id,label){
+  const q=P[id]; let s=`<svg viewBox="0 0 120 80" role="img" aria-label="${label||''}">`;
+  if(q.top) s+=`<rect x="34" y="3" width="52" height="75" rx="4" class="topmat"/>`;
+  else if(q.mat) s+=`<rect x="6" y="72" width="108" height="4" rx="2" class="mat"/>`;
+  else s+=`<line x1="10" y1="73.5" x2="110" y2="73.5" class="gr"/>`;
+  if(q.trx){const a=q.trx[0]; for(let i=1;i<q.trx.length;i++) s+=`<line class="trx" x1="${a[0]}" y1="${a[1]}" x2="${q.trx[i][0]}" y2="${q.trx[i][1]}"/>`; s+=`<rect class="anc" x="${a[0]-3}" y="${a[1]-2}" width="6" height="4" rx="1"/>`;}
+  if(q.g){ s+=body(Object.assign({},q,q.g),'ghost',q.g); }
+  s+=body(q,'');
+  if(q.kb){const[x,y]=q.kb; s+=`<path class="kbh" d="M${x-2.6},${y-2} Q${x},${y-7.5} ${x+2.6},${y-2}"/><circle class="kb" cx="${x}" cy="${y+1}" r="4.6"/>`;}
+  if(q.x) s+=q.x;
+  return s+'</svg>';
+}
+
+/* ---------- mobility & stretch moves (fixed) ---------- */
+const EX={
+ catcow:{n:"Cat-Cow",c:"On all fours. Slowly round your spine up, then let the belly drop and lift your chest. Move with your breath."},
+ thread:{n:"Thread the Needle",c:"From all fours, slide one arm under your body along the floor and let that shoulder sink. Swap sides halfway."},
+ wgs:{n:"World's Greatest Stretch",c:"Long lunge, hands inside the front foot. Rotate open and reach one arm up, only as high as feels comfortable. Alternate sides."},
+ ninety:{n:"90/90 Hip Switches",c:"Sit with both knees bent at 90°, one in front and one to the side. Rotate both knees over to the other side and back. Hands behind for support."},
+ legswing:{n:"Leg Swings",c:"Hold a TRX strap for balance. Swing one leg forward and back, starting small and getting bigger. Switch legs halfway."},
+ angels:{n:"Floor Angels",c:"On your back, knees bent. Slide your arms along the floor from a 'W' up towards a 'Y', staying pain-free. (Seen from above.)"},
+ hipcircles:{n:"Hip Circles",c:"Hands on hips. Draw big slow circles with your hips. Change direction halfway."},
+ squathold:{n:"TRX Deep Squat Hold",c:"Hold the straps and sit into the deepest squat you can with heels down. Shift gently side to side."},
+ scapcircle:{n:"Shoulder Rolls",c:"Arms relaxed. Slowly roll your shoulder blades up, back and down. Small and smooth."},
+ bridge:{n:"Glute Bridge",c:"On your back, knees bent. Lift your hips into a line from knees to shoulders. Pause, lower slowly."},
+ childs:{n:"Child's Pose",c:"Kneel, sit back to your heels and fold forward. Put your arms forward, or by your sides if your shoulders are sore."},
+ pigeon:{n:"Pigeon Stretch",c:"Front shin across in front, back leg long behind. Stay tall or fold forward. Switch sides halfway."},
+ hipflexor:{n:"Kneeling Hip Flexor Stretch",c:"Half-kneeling. Tuck your tailbone under, squeeze the back glute, shift slightly forward. Switch sides halfway."},
+ hamstring:{n:"Lying Hamstring Stretch",c:"On your back, raise one leg fairly straight and hold behind the thigh or calf. Switch sides halfway."},
+ butterfly:{n:"Butterfly Stretch",c:"Sit tall with the soles of your feet together and knees out. Hold your feet and hinge gently forward."},
+ chest:{n:"TRX Chest Opener",c:"Face away from the anchor with your hands low behind you on the straps. Step forward into a gentle chest stretch. Keep your arms below shoulder height."},
+ crossbody:{n:"Cross-body Shoulder Stretch",c:"Bring one arm across your chest and ease it in with the other hand. Switch sides halfway."},
+ twist:{n:"Lying Twist",c:"On your back, arms out wide. Let both knees drop to one side and look the other way. Switch sides halfway. (Seen from above.)"}
+};
+
+/* ---------- strength ladders (easiest → hardest) ---------- */
+const L={
+ row:{start:1,v:[
+  {n:"TRX Row · easy angle",f:"trxrow",c:"Stand fairly upright, only leaning back a little. Pull your chest to your hands, shoulder blades back and down."},
+  {n:"TRX Row",f:"trxrow",c:"Lean back with arms straight, body like a plank. Pull your chest to your hands and squeeze your shoulder blades. Lower slowly."},
+  {n:"TRX Row · steep angle",f:"trxrow",c:"Walk your feet in until you're close to horizontal. Same pull, with a 2 s squeeze at the top."},
+  {n:"TRX Single-arm Row",f:"trxrow",c:"One handle, body square to the anchor without twisting. Pull and lower slowly. Switch arms halfway."}]},
+ facepull:{start:1,v:[
+  {n:"TRX Face Pull · easy angle",f:"facepull",c:"Fairly upright. Pull your hands towards your forehead with elbows high and wide."},
+  {n:"TRX Face Pull",f:"facepull",c:"Lean back, palms down. Pull your hands to your forehead, elbows high and wide. Lower slowly."},
+  {n:"TRX Face Pull · steep + 2 s hold",f:"facepull",c:"Feet further in. Pull and hold 2 s with your shoulder blades squeezed, then lower over 3 s."}]},
+ extrot:{start:1,v:[
+  {n:"Side-lying Rotation · no weight",f:"extrot",c:"On your side, elbow tucked to your waist (a towel helps). Rotate your forearm up, lower slowly. Switch sides halfway."},
+  {n:"Side-lying Rotation · light weight",f:"extrot",c:"As before, holding a water bottle or a very light bell (under ~4 kg). Switch sides halfway."},
+  {n:"Side-lying Rotation · 3 s lower",f:"extrot",c:"Light weight, lift for 1 s, lower over 3 s. The slow lowering is what builds tendon strength. Switch sides halfway."}]},
+ ytw:{start:0,v:[
+  {n:"Prone Y-T-W",f:"ytw",c:"Lie face down, thumbs up. Lift your arms into a Y, T, then W, holding each 2 s. No weight. (Seen from above.)"},
+  {n:"Prone Y-T-W · 5 s holds",f:"ytw",c:"Same shapes, holding each one for 5 s. Keep your neck long and look at the floor."},
+  {n:"TRX Y-T-W · easy angle",f:"facepull",c:"Lean back slightly on the straps. Raise your arms into Y, T, then W shapes with straight arms. Keep the Y below any pinch point."}]},
+ carry:{start:0,v:[
+  {n:"Suitcase Carry",f:"carry",c:"Kettlebell in one hand, shoulders level and packed down. Walk slowly or march on the spot. Switch hands halfway."},
+  {n:"Rack Carry",f:"rackcarry",c:"Hold the bell at your shoulder, elbow tucked in to your ribs, wrist straight. March tall. Switch sides halfway."},
+  {n:"Bottoms-up Carry",f:"rackcarry",c:"Hold the bell upside-down by the handle, elbow at 90° in front. Grip hard and march. Great for shoulder stability. Switch halfway."}]},
+ push:{start:0,v:[
+  {n:"Scapular Push-up · knees",f:"scappush",c:"Kneeling plank, arms straight. Let your chest sink between your shoulder blades, then push the floor away. Your arms don't bend."},
+  {n:"Scapular Push-up · full plank",f:"scappush",c:"Same movement from a full plank. Slow and controlled."},
+  {n:"TRX Push-up · easy angle",f:"pushup",c:"Face away from the anchor and lean into the straps. Lower your chest between your hands, elbows at about 45°. Stop short of any pinch."},
+  {n:"TRX Push-up · steeper",f:"pushup",c:"Walk your feet back for more lean. Same form, 2 s down."}]},
+ squat:{start:1,v:[
+  {n:"TRX Squat",f:"squathold",c:"Hold the straps, sit back and down, then stand. Let the straps take a little weight."},
+  {n:"Goblet Squat",f:"goblet",c:"Kettlebell at your chest, elbows in. Sit down between your knees with your chest up, then drive up."},
+  {n:"Goblet Squat · 3 s down + pause",f:"goblet",c:"Lower over 3 s, pause 1 s at the bottom, then drive up fast."},
+  {n:"TRX-assisted Pistol Squat",f:"squathold",c:"Hold the straps, one leg out in front, and squat down on the other. Use the straps as little as you can. Switch legs halfway."}]},
+ hinge:{start:1,v:[
+  {n:"Kettlebell Deadlift",f:"deadlift",c:"Bell between your feet. Push your hips back with a flat back, then stand tall by driving your hips forward."},
+  {n:"Kettlebell Swing",f:"swing",c:"Hike the bell back between your legs, then snap your hips forward so it floats to chest height. Your arms are just ropes; the power comes from your hips."},
+  {n:"Single-leg KB Deadlift",f:"sldl",c:"Bell in the opposite hand to your standing leg. Hinge as your back leg rises behind you, keeping your hips square. Switch halfway."}]},
+ lunge:{start:1,v:[
+  {n:"TRX Reverse Lunge",f:"lunge",c:"Hold the straps lightly. Step back and lower your back knee towards the floor. Alternate legs."},
+  {n:"Goblet Reverse Lunge",f:"bulgarian",c:"Kettlebell at your chest. Step back into a lunge with the back knee just above the floor. Alternate legs."},
+  {n:"TRX Bulgarian Split Squat",f:"bulgarian",c:"Rear foot in a foot cradle. Lower straight down on your front leg. Switch legs halfway."},
+  {n:"Bulgarian Split Squat + KB",f:"bulgarian",c:"As before, holding the bell at your chest. Lower over 2 s. Switch legs halfway."}]},
+ bridge:{start:1,v:[
+  {n:"Glute Bridge",f:"bridge",c:"On your back, knees bent. Lift your hips into a line from knees to shoulders. Pause, lower slowly."},
+  {n:"Kettlebell Glute Bridge",f:"bridge",c:"Bell resting on your hips, held with both hands. Squeeze up, hold 2 s, lower slowly."},
+  {n:"Single-leg Glute Bridge",f:"bridge",c:"One foot down, other knee hugged or leg straight. Keep your hips level. Switch halfway."},
+  {n:"TRX Single-leg Bridge",f:"hamcurl",c:"One heel in a foot cradle, the other leg up. Lift your hips and hold level. Switch halfway."}]},
+ hamcurl:{start:1,v:[
+  {n:"TRX Hip Lift",f:"hamcurl",c:"Heels in the cradles, legs straight. Lift your hips and lower slowly, with no curl."},
+  {n:"TRX Hamstring Curl",f:"hamcurl",c:"Lift your hips, then pull your heels towards your bum and back out. Keep your hips up the whole time."},
+  {n:"TRX Single-leg Curl",f:"hamcurl",c:"As before on one leg, the other held up. Switch halfway."}]},
+ core:{start:1,v:[
+  {n:"Dead Bug",f:"deadbug",c:"On your back, arms up, knees over hips. Lower the opposite arm and leg slowly, lower back pressed down. Keep the arm low if your shoulders complain."},
+  {n:"Dead Bug · holding KB",f:"deadbug",c:"Hold the bell straight up above your chest with both hands. Only your legs move, alternating slowly."},
+  {n:"Hollow Hold",f:"hollow",c:"Lower back pressed down, shoulders and legs hovering. Arms by your sides is fine. Rest a few seconds if your back lifts."}]},
+ birddog:{start:1,v:[
+  {n:"Bird Dog",f:"birddog",c:"On all fours, reach one arm forward and the opposite leg back with your hips level. Alternate. Leave the arm down if your shoulders grumble."},
+  {n:"Bird Dog · 5 s holds",f:"birddog",c:"Hold each reach for 5 s and squeeze your glute hard."},
+  {n:"Bird Dog + Crunch",f:"birddog",c:"Reach out, then draw your elbow and knee together under your body, and reach out again. Switch sides halfway."}]},
+ hip:{start:1,v:[
+  {n:"Clamshells",f:"clam",c:"On your side, knees bent, feet together. Open your top knee without rolling your hips back. Switch sides halfway."},
+  {n:"Side-lying Leg Raise",f:"legraise",c:"On your side, bottom knee bent. Lift your top leg slightly behind you, toes forward. Switch sides halfway."},
+  {n:"Leg Raise · 3 s hold",f:"legraise",c:"As before, holding 3 s at the top each time. Switch sides halfway."}]}
+};
+
+/* ---------- week ---------- */
+const DAYS=[
+ {k:'mon',d:'Mon',t:'Shoulder Strength A',sh:1,why:'Rows and rotations for the shoulder blade, plus squats and core.',warm:['catcow','thread'],main:['row','extrot','squat','core'],cool:['childs','crossbody']},
+ {k:'tue',d:'Tue',t:'Legs & Hinge',sh:0,why:'Shoulders rest. Swings, lunges and hamstrings to get the legs strong for the day.',warm:['legswing','ninety'],main:['hinge','lunge','hamcurl','bridge'],cool:['pigeon','hipflexor']},
+ {k:'wed',d:'Wed',t:'Shoulder Strength B',sh:1,why:'Upper back and carries with no load overhead, plus lunges.',warm:['angels','wgs'],main:['facepull','ytw','carry','lunge'],cool:['chest','twist']},
+ {k:'thu',d:'Thu',t:'Legs & Core',sh:0,why:'Shoulders rest. Squats, hinges and trunk stability to protect your back on a physical day.',warm:['catcow','hipcircles'],main:['squat','hinge','birddog','hip'],cool:['hamstring','butterfly']},
+ {k:'fri',d:'Fri',t:'Full Body',sh:1,why:'Push and pull for the shoulders, with hinge and glutes to tie it together.',warm:['scapcircle','squathold'],main:['push','row','hinge','bridge'],cool:['pigeon','crossbody']},
+ {k:'sat',d:'Sat',t:'Flexibility Flow',sh:0,flow:75,why:'A full 10 minutes of hip and hamstring range. Use contract-relax on each hold.',items:['ninety','wgs','squathold','hipflexor','pigeon','hamstring','butterfly','childs']},
+ {k:'sun',d:'Sun',t:'Gentle Reset',sh:0,flow:120,why:'Slow and easy, two minutes per move. Just get the blood moving.',items:['catcow','angels','bridge','twist','childs']}
+];
+
+/* ---------- progress state ---------- */
+const LS='morning10.v2';
+let ST={lv:{}};
+try{ const j=JSON.parse(localStorage.getItem(LS)||'null'); if(j&&j.lv) ST=j; }catch(_){}
+const lv=k=>{ const s=ST.lv[k]; return s?{v:Math.min(s.v,L[k].v.length-1),w:s.w}:{v:L[k].start,w:45}; };
+const cur=k=>{ const s=lv(k), x=L[k].v[s.v]; return {n:x.n,c:x.c,f:x.f,v:s.v,w:s.w,max:L[k].v.length-1}; };
+function adjust(k,dir){ // dir +1 harder (too easy), -1 easier (too hard)
+  const s=lv(k), max=L[k].v.length-1, before=cur(k); let maxed=false;
+  if(dir>0){ if(s.v<max){s.v++; s.w=45;} else if(s.w<55) s.w+=5; else maxed=true; }
+  else { if(s.w>45) s.w-=5; else if(s.v>0){s.v--; s.w=45;} else s.w=40; }
+  ST.lv[k]=s; const after=cur(k);
+  if(maxed) return `${after.n}: maxed out. Time for a heavier kettlebell!`;
+  if(before.v!==after.v) return `${before.n} → <b>${after.n}</b>`;
+  if(before.w!==after.w) return `${after.n}: ${before.w} s → <b>${after.w} s</b>`;
+  return null;
+}
+let db=null, uid=null, saving=Promise.resolve();
+function save(){
+  try{ localStorage.setItem(LS,JSON.stringify(ST)); }catch(_){}
+  if(db&&uid){ const body=JSON.parse(JSON.stringify(ST)); saving=saving.then(()=>db.doc(`data/users/${uid}/progress`).set(body)).catch(()=>{}); }
+}
+(async()=>{
+  try{
+    if(!window.claude||!claude.use) return;
+    const [d,u]=await Promise.all([claude.use('db'),claude.use('user')]);
+    if(!d||!u) return; const id=await u.id(); if(!id) return;
+    const snap=await d.doc(`data/users/${id}/progress`).get();
+    db=d; uid=id;
+    if(snap.exists){ const data=snap.data(); if(data&&data.lv) { ST={lv:Object.assign({},data.lv)}; try{localStorage.setItem(LS,JSON.stringify(ST))}catch(_){} } }
+    else if(Object.keys(ST.lv).length) save();
+    document.getElementById('saveNote').textContent='Progress is saved to your account and syncs across devices.';
+    render();
+  }catch(_){}
+})();
+
+/* ---------- rendering ---------- */
+const dots=c=>'<span class="dots">'+Array.from({length:c.max+1},(_,i)=>`<i class="${i<=c.v?'on':''}"></i>`).join('')+'</span>';
+const exCard=(id,t)=>`<div class="ex">${fig(id,EX[id].n)}<div><div class="nm">${EX[id].n}<small>${t}</small></div><div class="cue">${EX[id].c}</div></div></div>`;
+function ladCard(k){ const c=cur(k);
+  return `<div class="ex">${fig(c.f,c.n)}<div><div class="nm">${c.n}<small>${c.w} s</small></div><div class="cue">${c.c}</div>
+  <div class="adj">${dots(c)}<span class="sp"></span><button data-k="${k}" data-d="-1">‹ easier</button><button data-k="${k}" data-d="1">harder ›</button></div></div></div>`; }
+const sec=(title,meta,body)=>`<div class="sec"><div class="sechead"><h3>${title}</h3><span>${meta}</span></div>${body}</div>`;
+
+let curDay=0;
+function render(){
+  document.getElementById('tabs').innerHTML=DAYS.map((d,i)=>`<button class="tab ${i===curDay?'on':''}" data-i="${i}">${d.d}<span class="dot" style="background:var(${d.sh?'--accent':'--green'})"></span></button>`).join('');
+  const d=DAYS[curDay]; let h=`<div class="dayhead"><div><h2>${d.t}</h2><span class="pill ${d.sh?'sh':'rest'}">${d.sh?'Shoulder strength':'Shoulder rest'}</span></div><button class="start" id="go">▶ Start</button></div><p class="why">${d.why}</p>`;
+  if(d.flow) h+=sec('Flow','10 min · '+d.flow+' s each',d.items.map(id=>exCard(id,d.flow+' s')).join(''));
+  else{
+    h+=sec('Warm-up','1 min',d.warm.map(id=>exCard(id,'30 s')).join(''));
+    h+=sec('Strength circuit','8 min · twice through · 1-min blocks',d.main.map(ladCard).join(''));
+    h+=sec('Stretch','1 min',d.cool.map(id=>exCard(id,'30 s')).join(''));
+  }
+  document.getElementById('day').innerHTML=h;
+  document.getElementById('go').onclick=()=>startTimer(d);
+}
+document.getElementById('tabs').addEventListener('click',e=>{const b=e.target.closest('.tab'); if(b){curDay=+b.dataset.i; render(); try{history.replaceState(null,'','#'+DAYS[curDay].k)}catch(_){}}});
+document.getElementById('day').addEventListener('click',e=>{const b=e.target.closest('.adj button'); if(!b) return; adjust(b.dataset.k,+b.dataset.d); save(); render();});
+let resetArm=false;
+document.getElementById('reset').onclick=e=>{ if(!resetArm){ resetArm=true; e.target.textContent='Tap again to reset'; setTimeout(()=>{resetArm=false; e.target.textContent='Reset all levels';},3000); return; } ST={lv:{}}; save(); resetArm=false; e.target.textContent='Reset all levels'; render(); };
+const hk=location.hash.slice(1), hi=DAYS.findIndex(d=>d.k===hk);
+curDay= hi>=0?hi:(new Date().getDay()+6)%7;
+render();
+
+/* ---------- timer ---------- */
+function seq(day){
+  const s=[];
+  if(day.flow){ day.items.forEach(id=>s.push({id,secs:day.flow,lbl:'Flow'})); return s; }
+  day.warm.forEach(id=>s.push({id,secs:30,lbl:'Warm-up'}));
+  for(let r=1;r<=2;r++) day.main.forEach(k=>{ const w=cur(k).w; s.push({k,secs:w,lbl:`Strength · round ${r} of 2`}); s.push({rest:1,k,secs:60-w,lbl:'Rest'}); });
+  day.cool.forEach(id=>s.push({id,secs:30,lbl:'Stretch'}));
+  return s;
+}
+const info=st=> st.k? cur(st.k) : {n:EX[st.id].n,c:EX[st.id].c,f:st.id};
+let S=[],idx=0,left=0,tick=null,paused=false,ac=null,total=0,done=0,RT={},DAY=null;
+const $=id=>document.getElementById(id);
+function beep(f=880,d=.12){ try{ if(!ac) return; const o=ac.createOscillator(),g=ac.createGain(); o.frequency.value=f; o.connect(g); g.connect(ac.destination); g.gain.setValueAtTime(.18,ac.currentTime); g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d); o.start(); o.stop(ac.currentTime+d);}catch(_){} }
+function nextWork(i){ for(let j=i+1;j<S.length;j++) if(!S[j].rest) return S[j]; return null; }
+const RATES=[[1,'Too easy'],[0,'Just right'],[-1,'Too hard']];
+function rateRow(k){ return `<div class="rq">How's ${cur(k).n}?</div><div class="rb">`+RATES.map(([v,t])=>`<button data-k="${k}" data-v="${v}" class="${RT[k]===v?'sel':''}">${t}</button>`).join('')+'</div>'; }
+function show(){
+  const st=S[idx]; left=st.secs;
+  $('tmStep').textContent=`${idx+1} / ${S.length}`;
+  const lbl=$('tmLbl'); lbl.textContent=st.lbl; lbl.className='lbl'+(st.rest?' r':'');
+  const nx=nextWork(idx), showSt= st.rest? nx : st, inf= showSt? info(showSt):null;
+  $('tmFig').innerHTML = inf? fig(inf.f,inf.n):'';
+  $('tmFig').style.opacity = st.rest? .45 : 1;
+  $('tmName').textContent = st.rest? 'Breathe' : inf.n;
+  $('tmCue').textContent = st.rest? (inf? 'Next: '+inf.n : '') : inf.c;
+  $('tmNext').textContent = st.rest? '' : (nx? 'Next: '+info(nx).n : 'Last one');
+  $('tmRate').innerHTML = st.k? rateRow(st.k) : '';
+  draw();
+}
+function draw(){ $('tmCnt').textContent=left; $('tmBar').style.width=(100*(done+(S[idx].secs-left))/total)+'%'; }
+function advance(){ done+=S[idx].secs; idx++; if(idx>=S.length){ finish(); return; } beep(990,.25); show(); }
+function step(){ if(paused) return; left--; if(left<=3&&left>0) beep(660,.08); if(left<=0) advance(); else draw(); }
+function startTimer(d){
+  try{ ac = ac || new (window.AudioContext||window.webkitAudioContext)(); ac.resume&&ac.resume(); }catch(_){ ac=null; }
+  DAY=d; RT={}; S=seq(d); idx=0; done=0; total=S.reduce((a,b)=>a+b.secs,0); paused=false; $('tmPause').textContent='Pause';
+  $('tmMain').style.display=''; $('tmCtl').style.display=''; $('tmEnd').style.display='none';
+  $('tm').classList.add('on'); show(); beep(990,.25);
+  clearInterval(tick); tick=setInterval(step,1000);
+}
+function finish(){
+  clearInterval(tick); $('tmBar').style.width='100%'; beep(880,.15); setTimeout(()=>beep(1175,.3),180);
+  $('tmMain').style.display='none'; $('tmCtl').style.display='none';
+  const e=$('tmEnd'); e.style.display='block';
+  if(!DAY.main){ e.innerHTML=`<h2>Done ✓</h2><p class="cue">Nice one. Go have a good day.</p><button class="start wide" id="endClose">Close</button>`; $('endClose').onclick=closeTm; return; }
+  e.innerHTML=`<h2>Done ✓ How did it feel?</h2><p class="cue">Rate each strength move. Next time it'll step up, down or stay the same.</p>`+
+    DAY.main.map(k=>{ if(RT[k]===undefined) RT[k]=0; const c=cur(k); return `<div class="er">${fig(c.f,c.n)}<div><b>${c.n}</b> <span class="mut">${c.w} s</span><div class="rb">`+RATES.map(([v,t])=>`<button data-k="${k}" data-v="${v}" class="${RT[k]===v?'sel':''}">${t}</button>`).join('')+`</div></div></div>`; }).join('')+
+    `<button class="start wide" id="endSave">Save &amp; adjust</button>`;
+  $('endSave').onclick=()=>{
+    const ch=DAY.main.map(k=>RT[k]?adjust(k,RT[k]):null).filter(Boolean); save(); render();
+    e.innerHTML=`<h2>Saved ✓</h2>`+(ch.length?`<p class="cue">Next time:</p><ul class="chg">${ch.map(x=>`<li>${x}</li>`).join('')}</ul>`:`<p class="cue">All just right, so nothing changes. Next time, rate a move "too easy" once it is.</p>`)+`<button class="start wide" id="endClose">Close</button>`;
+    $('endClose').onclick=closeTm;
+  };
+}
+function closeTm(){ clearInterval(tick); $('tm').classList.remove('on'); }
+$('tm').addEventListener('click',e=>{ const b=e.target.closest('.rb button'); if(!b) return; RT[b.dataset.k]=+b.dataset.v; b.parentNode.querySelectorAll('button').forEach(x=>x.classList.toggle('sel',x===b)); });
+$('tmPause').onclick=()=>{ paused=!paused; $('tmPause').textContent=paused?'Resume':'Pause'; };
+$('tmSkip').onclick=()=>{ if(idx<S.length) advance(); };
+$('tmX').onclick=closeTm;
+if('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
