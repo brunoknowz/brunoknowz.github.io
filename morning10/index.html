@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#c2662d">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Morning 10">
+<script src="firebase-config.js"></script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -141,7 +142,7 @@ svg .topmat{fill:var(--mat);opacity:.6}
   <div class="tabs" id="tabs"></div>
   <div id="day"></div>
 
-  <p class="foot"><span id="saveNote">Progress is saved on this phone. Works offline once installed.</span> <button class="lnk" id="reset">Reset all levels</button><br>General guidance, not medical advice. "Seen from above" figures are drawn top-down; faint dashed lines show the movement.</p>
+  <p class="foot"><span id="saveNote">Progress is saved on this phone. Works offline once installed.</span> <button class="lnk" id="signBtn" style="display:none">Sign in to sync</button> · <button class="lnk" id="reset">Reset all levels</button><br>General guidance, not medical advice. "Seen from above" figures are drawn top-down; faint dashed lines show the movement.</p>
 </div>
 
 <div id="tm">
@@ -345,22 +346,33 @@ function adjust(k,dir){ // dir +1 harder (too easy), -1 easier (too hard)
   if(before.w!==after.w) return `${after.n}: ${before.w} s → <b>${after.w} s</b>`;
   return null;
 }
-let db=null, uid=null, saving=Promise.resolve();
+let fdb=null, uid=null, saving=Promise.resolve();
+const ref=()=>fdb.collection('users').doc(uid).collection('app').doc('progress');
 function save(){
   try{ localStorage.setItem(LS,JSON.stringify(ST)); }catch(_){}
-  if(db&&uid){ const body=JSON.parse(JSON.stringify(ST)); saving=saving.then(()=>db.doc(`data/users/${uid}/progress`).set(body)).catch(()=>{}); }
+  if(fdb&&uid){ const body=JSON.parse(JSON.stringify(ST)); saving=saving.then(()=>ref().set(body)).catch(()=>{}); }
 }
+/* Private sync: Firebase + Google sign-in. Data lives at users/<your uid>/..., locked by Firestore rules. */
+const note=document.getElementById('saveNote'), sb=document.getElementById('signBtn');
+function loadScript(u){return new Promise((ok,no)=>{const e=document.createElement('script');e.src=u;e.onload=ok;e.onerror=no;document.head.appendChild(e);});}
 (async()=>{
+  if(!window.FB_CONFIG||!navigator.onLine) return;
   try{
-    if(!window.claude||!claude.use) return;
-    const [d,u]=await Promise.all([claude.use('db'),claude.use('user')]);
-    if(!d||!u) return; const id=await u.id(); if(!id) return;
-    const snap=await d.doc(`data/users/${id}/progress`).get();
-    db=d; uid=id;
-    if(snap.exists){ const data=snap.data(); if(data&&data.lv) { ST={lv:Object.assign({},data.lv)}; try{localStorage.setItem(LS,JSON.stringify(ST))}catch(_){} } }
-    else if(Object.keys(ST.lv).length) save();
-    document.getElementById('saveNote').textContent='Progress is saved to your account and syncs across devices.';
-    render();
+    const V='10.12.2', B='https://www.gstatic.com/firebasejs/'+V+'/firebase-';
+    await loadScript(B+'app-compat.js'); await Promise.all([loadScript(B+'auth-compat.js'),loadScript(B+'firestore-compat.js')]);
+    firebase.initializeApp(window.FB_CONFIG); fdb=firebase.firestore(); const auth=firebase.auth();
+    sb.style.display='';
+    sb.onclick=()=>{ if(uid){ auth.signOut(); } else { auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(()=>auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider())); } };
+    auth.onAuthStateChanged(async u=>{
+      if(!u){ uid=null; sb.textContent='Sign in to sync'; note.textContent='Progress is saved on this phone. Works offline once installed.'; return; }
+      uid=u.uid; sb.textContent='Sign out';
+      try{
+        const snap=await ref().get();
+        if(snap.exists){ const d=snap.data(); if(d&&d.lv){ ST={lv:Object.assign({},d.lv)}; try{localStorage.setItem(LS,JSON.stringify(ST))}catch(_){} } }
+        else if(Object.keys(ST.lv).length) save();
+        note.textContent='Progress syncs privately to your Google account.'; render();
+      }catch(_){ note.textContent='Signed in, but sync failed. Progress is still saved on this phone.'; }
+    });
   }catch(_){}
 })();
 
